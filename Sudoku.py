@@ -13,6 +13,7 @@ class Box():
         self.possibleValues = [1,2,3,4,5,6,7,8,9]
     def setValue(self, value):
         self.value = value
+        self.possibleValues = [value]
     def setPossibleValues(self, possibleValues):
         self.possibleValues = possibleValues
     def getValue(self):
@@ -61,6 +62,18 @@ class Sudoku():
     def getTable(self):
         return self.boxgrid.getTable()
     
+    def printTable(self):
+        sTable = self.getTable()
+        for y in xrange(0,9):
+            line = ""
+            for x in xrange(0,9):
+                v = sTable[y][x]
+                if v==None:
+                    line+="  "
+                else:
+                    line+=str(v)+" "
+            print(line)
+    
     def getNumberFilled(self):
         i = 0
         for y in xrange(0,9):
@@ -69,6 +82,97 @@ class Sudoku():
                     i+=1
         return i
     
+    def OnlyPossibility(self, targetBox, x, y):
+        '''
+        Checks row, column and region to see if there is only one possible number
+        which can cooexist with the other values; else sets possible values.
+        '''
+        if targetBox.getValue()==None:
+            poss = [1,2,3,4,5,6,7,8,9]
+            # Going through rows and columns
+            for x_val in xrange(0,9):
+                if x_val!=x:
+                    selBox = self.boxgrid.get(x_val, y)
+                    if selBox.getValue() in poss:
+                        poss.remove(selBox.getValue())
+            for y_val in xrange(0,9):
+                if y_val!=y:
+                    selBox = self.boxgrid.get(x, y_val)
+                    if selBox.getValue() in poss:
+                        poss.remove(selBox.getValue())
+            if (len(poss)==0): #If there are no possible values: die! There's a problem.
+                print("Error 1: Box location: "+str(x)+","+str(y))
+                self.printTable()
+                assert() #temporary
+            # Going through 3x3 boxes
+            x_gridOffset = 3*int(math.floor(x/3.0)) # 0 for (0,1,2) ; 1 for (3,4,5) ; 2 for (6,7,8)
+            y_gridOffset = 3*int(math.floor(y/3.0))
+            for x_val in xrange(x_gridOffset,x_gridOffset+3):
+                for y_val in xrange(y_gridOffset,y_gridOffset+3):
+                    if x_val!=x and y_val!=y:
+                        selBox = self.boxgrid.get(x_val,y_val)
+                        if selBox.getValue() in poss:
+                            poss.remove(selBox.getValue())
+            if (len(poss)==0): #If there are no possible values: die! There's a problem.
+                print("Error 2: Box location: "+str(x)+","+str(y))
+                self.printTable()
+                assert() # temporary
+            elif (len(poss)==1):
+                print("OnlyPossibility: ("+str(x)+","+str(y)+") set to "+str(poss[0])+" from "+str(targetBox.getPossibleValues()))
+                targetBox.setValue(poss[0])
+                return True
+            else:
+                targetBox.setPossibleValues(list(poss))
+            return False
+    
+    def LastManStanding(self, targetBox, x, y):
+        '''
+        Checks to see if this is the only box in a row, column or region
+        that can take a certain value, then sets that value
+        '''
+        poss = targetBox.getPossibleValues()
+        #check column
+        for y_val in xrange(0,9):
+            if y_val!=y:
+                checkPoss = self.boxgrid.get(x, y_val).getPossibleValues()
+                newPoss = list(poss)
+                for value in poss:
+                    if (value in checkPoss) and (value in newPoss):
+                        newPoss.remove(value)
+        if len(newPoss)==1:
+            print("LastManStanding_column: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            targetBox.setValue(newPoss[0])
+            return True
+        #check row
+        for x_val in xrange(0,9):
+            if x_val!=x:
+                checkPoss = self.boxgrid.get(x_val, y).getPossibleValues()
+                newPoss = list(poss)
+                for value in poss:
+                    if (value in checkPoss) and (value in newPoss):
+                        newPoss.remove(value)
+        if len(newPoss)==1:
+            print("LastManStanding_row: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            targetBox.setValue(newPoss[0])
+            return True
+        #check region
+        x_region_bounds = 3*int(math.floor(x/3.0))
+        y_region_bounds = 3*int(math.floor(y/3.0))
+        for x_val in xrange(x_region_bounds, x_region_bounds+3):
+            for y_val in xrange(y_region_bounds, y_region_bounds+3):
+                if x_val!=x and y_val!=y:
+                    checkPoss = self.boxgrid.get(x_val, y).getPossibleValues()
+                    newPoss = list(poss)
+                    for value in poss:
+                        if (value in checkPoss) and (value in newPoss):
+                            newPoss.remove(value)
+        if len(newPoss)==1:
+            print("LastManStanding_region: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            targetBox.setValue(newPoss[0])
+            return True
+            
+        return False
+        
     def checkLoop(self):
         madeChanges = False
         # check each box, for that box check each row, column and 3x3 grid. Remove possibilities which interfere with those.
@@ -76,75 +180,20 @@ class Sudoku():
             for y in xrange(0,9):
                 targetBox = self.boxgrid.get(x, y)
                 if targetBox.getValue()==None:
-                    poss = [1,2,3,4,5,6,7,8,9]
-                    # Going through rows and columns
-                    for x_val in xrange(0,9):
-                        if x_val!=x:
-                            selBox = self.boxgrid.get(x_val, y)
-                            if selBox.getValue() in poss:
-                                poss.remove(selBox.getValue())
-                    for y_val in xrange(0,9):
-                        if y_val!=y:
-                            selBox = self.boxgrid.get(x, y_val)
-                            if selBox.getValue() in poss:
-                                poss.remove(selBox.getValue())
-                    if (len(poss)==0): #If there are no possible values: die! There's a problem.
-                        print("Error 1: Box location: "+str(x)+","+str(y))
-                    # Going through 3x3 boxes
-                    x_gridOffset = 3*int(math.floor(x/3.0)) # 0 for (0,1,2) ; 1 for (3,4,5) ; 2 for (6,7,8)
-                    y_gridOffset = 3*int(math.floor(y/3.0))
-                    for x_val in xrange(x_gridOffset,x_gridOffset+3):
-                        for y_val in xrange(y_gridOffset,y_gridOffset+3):
-                            if x_val!=x and y_val!=y:
-                                selBox = self.boxgrid.get(x_val,y_val)
-                                if selBox.getValue() in poss:
-                                    poss.remove(selBox.getValue())
-                   
-                    if (len(poss)<=0): #If there are no possible values: die! There's a problem.
-                        print("Error 2: Box location: "+str(x)+","+str(y))
-                    if len(poss)==1:
-                        targetBox.setValue(poss[0])
-                        madeChanges = True
-                    elif len(poss)>1:
-                        targetBox.setPossibleValues(poss)
+                    madeChanges = madeChanges or self.OnlyPossibility(targetBox, x, y)
+                    if madeChanges: return True
+        
         # Now doing second check, we look through all the possibilities, if there is a column, row or grid wherein
         # only one of the boxes can have a certain value, set that box to that value
         for x in xrange(0,9):
             for y in xrange(0,9):
                 targetBox = self.boxgrid.get(x, y)
-                # remove intersection of poss and other from poss
-                #check poss in column
-                poss = targetBox.getPossibleValues()
-                for y_val in xrange(0,9):
-                    checkPoss = self.boxgrid.get(x, y_val).getPossibleValues()
-                    poss = [val for val in poss if val not in checkPoss and y_val != y]
-                if len(poss)==1:
-                    targetBox.setValue(poss[0])
-                    madeChanges = True
-                    break
-                #check poss in row
-                poss = targetBox.getPossibleValues()    #You can't preserve poss
-                for x_val in xrange(0,9):
-                    checkPoss = self.boxgrid.get(x_val, y).getPossibleValues()
-                    poss = [val for val in poss if val not in checkPoss and x_val != x]
-                if len(poss)==1:
-                    targetBox.setValue(poss[0])
-                    madeChanges = True
-                    break
-                #check poss in 3x3
-                poss = targetBox.getPossibleValues()
-                x_gridOffset = 3*int(math.floor(x/3.0))
-                y_gridOffset = 3*int(math.floor(y/3.0))
-                for x_val in xrange(x_gridOffset, x_gridOffset+3):
-                    for y_val in xrange(y_gridOffset, y_gridOffset+3):
-                        checkPoss = self.boxgrid.get(x_val, y_val).getPossibleValues()
-                        poss = [val for val in poss if val not in checkPoss and x_val != x and y_val != y]
-                if len(poss)==1:
-                    targetBox.setValue(poss[0])
-                    madeChanges = True
-                    break
-        
-        return madeChanges     
+                if targetBox.getValue()==None:
+                    madeChanges = madeChanges or self.LastManStanding(targetBox, x, y)
+                    if madeChanges: return True
+        # did it change anything?
+        return madeChanges   
+      
     def isFilled(self):
         for y in xrange(0,9):
             for x in xrange(0,9):
@@ -194,22 +243,19 @@ def main():
         pre = s.getNumberFilled()
         post = 0
         print("Solving...")
+        
         while (not s.isFilled()):
-            if (not s.checkLoop()) and (not s.checkLoop()): #check it twice
+            madeChanges = s.checkLoop()
+            if not madeChanges:
                 print("We lose")
                 post = s.getNumberFilled()
                 print("We solved "+str(post-pre)+" boxes")
+                for y in xrange(0,9):
+                    for x in range(0,9):
+                        print("("+str(x)+","+str(y)+"): "+str(s.boxgrid.get(x, y).getPossibleValues()))
                 break
-        sTable = s.getTable()
-        for y in xrange(0,9):
-            line = ""
-            for x in xrange(0,9):
-                v = sTable[y][x]
-                if v==None:
-                    line+="  "
-                else:
-                    line+=str(v)+" "
-            print(line)
+        
+        s.printTable()
     else:
         print("Error 404: File Not Found")
 
