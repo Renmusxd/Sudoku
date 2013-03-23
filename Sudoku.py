@@ -7,6 +7,8 @@ Created on Mar 21, 2013
 import math
 import sys
 
+debug = False #Will be command line argument
+
 class Box():
     def __init__(self):
         self.value = None
@@ -101,7 +103,7 @@ class Sudoku():
                     if selBox.getValue() in poss:
                         poss.remove(selBox.getValue())
             if (len(poss)==0): #If there are no possible values: die! There's a problem.
-                print("Error 1: Box location: "+str(x)+","+str(y))
+                if debug: print("Error 1: Box location: "+str(x)+","+str(y))
                 self.printTable()
                 assert() #temporary
             # Going through 3x3 boxes
@@ -114,11 +116,11 @@ class Sudoku():
                         if selBox.getValue() in poss:
                             poss.remove(selBox.getValue())
             if (len(poss)==0): #If there are no possible values: die! There's a problem.
-                print("Error 2: Box location: "+str(x)+","+str(y))
+                if debug: print("Error 2: Box location: "+str(x)+","+str(y))
                 self.printTable()
                 assert() # temporary
             elif (len(poss)==1):
-                print("OnlyPossibility: ("+str(x)+","+str(y)+") set to "+str(poss[0])+" from "+str(targetBox.getPossibleValues()))
+                if debug: print("OnlyPossibility: ("+str(x)+","+str(y)+") set to "+str(poss[0])+" from "+str(targetBox.getPossibleValues()))
                 targetBox.setValue(poss[0])
                 return True
             else:
@@ -131,68 +133,67 @@ class Sudoku():
         that can take a certain value, then sets that value
         '''
         poss = targetBox.getPossibleValues()
-        print("Performing LastManStanding: "+str(x)+","+str(y))
+        if debug: print("Performing LastManStanding: "+str(x)+","+str(y))
         
-        print("Column")
+        if debug: print("Column")
         #check column
         newPoss = list(poss)
         for y_val in xrange(0,9):
             if y_val!=y and len(newPoss)>=0 and self.boxgrid.get(x, y_val).getValue()==None:
-                print("  Checking: ("+str(x)+","+str(y_val)+"):")
-                print("    Before: "+str(newPoss))
+                if debug: print("  Checking: ("+str(x)+","+str(y_val)+"):")
+                if debug: print("    Before: "+str(newPoss))
                 checkPoss = self.boxgrid.get(x, y_val).getPossibleValues()
-                print("    Minus: "+str(checkPoss))
+                if debug: print("    Minus: "+str(checkPoss))
                 for value in poss:
                     if (value in checkPoss) and (value in newPoss):
                         newPoss.remove(value)
-                print("    After: "+str(newPoss))
+                if debug: print("    After: "+str(newPoss))
         if len(newPoss)==1:
-            print("LastManStanding_column: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            if debug: print("LastManStanding_column: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
             targetBox.setValue(newPoss[0])
             return True
         
-        print("Row")
+        if debug: print("Row")
         #check row
         newPoss = list(poss)
         for x_val in xrange(0,9):
             if x_val!=x and len(newPoss)>=0 and self.boxgrid.get(x_val, y).getValue()==None:
-                print("  Checking: ("+str(x_val)+","+str(y)+"):")
-                print("    Before: "+str(newPoss))
+                if debug: print("  Checking: ("+str(x_val)+","+str(y)+"):")
+                if debug: print("    Before: "+str(newPoss))
                 checkPoss = self.boxgrid.get(x_val, y).getPossibleValues()
-                print("    Minus: "+str(checkPoss))
+                if debug: print("    Minus: "+str(checkPoss))
                 for value in poss:
                     if (value in checkPoss) and (value in newPoss):
                         newPoss.remove(value)
-                print("    After: "+str(newPoss))
+                if debug: print("    After: "+str(newPoss))
         if len(newPoss)==1:
-            print("LastManStanding_row: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            if debug: print("LastManStanding_row: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
             targetBox.setValue(newPoss[0])
             return True
         
-        print("Region")
+        if debug: print("Region")
         #check region
         newPoss = list(poss)
         x_region_bounds = 3*int(math.floor(x/3.0))
         y_region_bounds = 3*int(math.floor(y/3.0))
-        print("X_BOUNDS: "+str(x_region_bounds))
-        print("Y_BOUNDS: "+str(y_region_bounds))
+        if debug: print("X_BOUNDS: "+str(x_region_bounds))
+        if debug: print("Y_BOUNDS: "+str(y_region_bounds))
         for x_val in xrange(x_region_bounds, x_region_bounds+3):
             for y_val in xrange(y_region_bounds, y_region_bounds+3):
-                print("Passing over ("+str(x_val)+","+str(y_val)+"):")
+                if debug: print("Passing over ("+str(x_val)+","+str(y_val)+"):")
                 if (len(newPoss)>=0) and (x_val!=x or y_val!=y) and (self.boxgrid.get(x_val, y_val).getValue()==None):
-                    print("  Checking: ("+str(x_val)+","+str(y_val)+"):")
-                    print("    Before: "+str(newPoss))
+                    if debug: print("  Checking: ("+str(x_val)+","+str(y_val)+"):")
+                    if debug: print("    Before: "+str(newPoss))
                     checkPoss = self.boxgrid.get(x_val, y_val).getPossibleValues()
-                    print("    Minus: "+str(checkPoss))
+                    if debug: print("    Minus: "+str(checkPoss))
                     for value in poss:
                         if (value in checkPoss) and (value in newPoss):
                             newPoss.remove(value)
-                    print("    After: "+str(newPoss))
+                    if debug: print("    After: "+str(newPoss))
         if len(newPoss)==1:
-            print("LastManStanding_region: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
+            if debug: print("LastManStanding_region: ("+str(x)+","+str(y)+") set to "+str(newPoss[0])+" from "+str(targetBox.getPossibleValues()))
             targetBox.setValue(newPoss[0])
             return True
-            
         return False
         
     def checkLoop(self):
@@ -268,7 +269,7 @@ def main():
         
         while (not s.isFilled()):
             madeChanges = s.checkLoop()
-            s.printTable()
+            if debug: s.printTable()
             if not madeChanges:
                 print("We lose")
                 post = s.getNumberFilled()
