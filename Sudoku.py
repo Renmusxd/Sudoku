@@ -267,28 +267,32 @@ def main():
         filename = raw_input(">> ")
     debug = False if options.verbose==None else True
     if fileexists(filename):
-        sTable = readSudokuFile(filename)
-        print("Processing "+filename)
-        s = Sudoku(sTable)
-        pre = s.getNumberFilled()
-        post = 0
-        print("Solving...")
-        
-        while (not s.isFilled()):
-            madeChanges = s.checkLoop()
-            if debug: s.printTable()
-            if not madeChanges:
-                print("We lose")
-                post = s.getNumberFilled()
-                print("We solved "+str(post-pre)+" boxes")
-                for y in xrange(0,9):
-                    for x in range(0,9):
-                        print("("+str(x)+","+str(y)+"): "+str(s.boxgrid.get(x, y).getPossibleValues()))
-                break
-        
-        print(" ")
-        print("===== FINAL =====")
-        s.printTable()
+        try:
+            sTable = readSudokuFile(filename)
+            print("Processing "+filename)
+            s = Sudoku(sTable)
+            pre = s.getNumberFilled()
+            post = 0
+            print("Solving...")
+            
+            while (not s.isFilled()):
+                madeChanges = s.checkLoop()
+                if debug: s.printTable()
+                if not madeChanges:
+                    print("We lose")
+                    post = s.getNumberFilled()
+                    print("We solved "+str(post-pre)+" boxes")
+                    for y in xrange(0,9):
+                        for x in range(0,9):
+                            print("("+str(x)+","+str(y)+"): "+str(s.boxgrid.get(x, y).getPossibleValues()))
+                    break
+            
+            print(" ")
+            print("===== FINAL =====")
+            s.printTable()
+        except KeyError:
+            print("There was an error processing the file")
+            print("Please check to make sure this is a sudoku file")
     else:
         print("Error 404: File Not Found")
 
