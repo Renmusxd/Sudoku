@@ -259,7 +259,7 @@ def main():
     (options, args) = parser.parse_args()
     filename = ""
     if options.filename!=None:
-        filename = options["filename"]
+        filename = options.filename
     elif len(args)==1:
         filename = args[0]
     else:
