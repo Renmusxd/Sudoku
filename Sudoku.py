@@ -1,11 +1,11 @@
-#!usr/bin/env python
+#!/usr/bin/env python
 '''
 Created on Mar 21, 2013
 
 @author: Sumner Hearth
 '''
 import math
-import sys
+from optparse import OptionParser
 
 debug = False #Will be command line argument
 
@@ -253,12 +253,19 @@ def fileexists(filename):
 
 def main():
     print("Starting up")
+    parser = OptionParser()
+    parser.add_option("-f","--file", dest="filename", help="reads sudoku file", metavar="FILE")
+    parser.add_option("-v","--verbose", action="store_true",dest="verbose", help="enables verbose (debug) mode")
+    (options, args) = parser.parse_args()
     filename = ""
-    if len(sys.argv)<=1:
+    if options.filename!=None:
+        filename = options["filename"]
+    elif len(args)==1:
+        filename = args[0]
+    else:
         print("Please enter sudoku file name:")
         filename = raw_input(">> ")
-    else:
-        filename = sys.argv[2]
+    debug = False if options.verbose==None else True
     if fileexists(filename):
         sTable = readSudokuFile(filename)
         print("Processing "+filename)
