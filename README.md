@@ -11,6 +11,6 @@ One possibility: A box can only be one value since all other values are used in 
 
 Last Possibility: Of several boxes in a region, column or row, only one can take on a value (though it may have more possibilities) and thus must be that value.
 
-This project is very early in its development. Thank you for your understanding.
+The solver can use these to solve most medium and easy Sudoku puzzles. I am currently working on the harder ones.
 
-Renmusxd
+- Renmusxd
