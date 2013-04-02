@@ -6,25 +6,45 @@ Created on Mar 21, 2013
 '''
 import math
 from optparse import OptionParser
-
 debug = False #Will be command line argument
-
 class Box():
+    '''
+    A box object to store possibilities and values
+    '''
     def __init__(self):
+        '''
+        creates box object with all possible values
+        '''
         self.value = None
         self.possibleValues = [1,2,3,4,5,6,7,8,9]
     def setValue(self, value):
+        '''
+        sets value of box and sets possibleValues to that of value
+        '''
         self.value = value
         self.possibleValues = [value]
     def setPossibleValues(self, possibleValues):
+        '''
+        sets possible values of box
+        '''
         self.possibleValues = possibleValues
     def getValue(self):
+        '''
+        returns value (even if none)
+        '''
         return self.value
     def getPossibleValues(self):
+        '''
+        returns table of possible values
+        '''
         return self.possibleValues
     
 class SudokuGrid():
     def __init__(self, boxGrid, printAll = False):
+        '''
+        creates sudoku grid with table of values
+        takes optional printall debugger (outdated I think)
+        '''
         self.boxDict = {}
         y = -1
         # array of rows
@@ -47,8 +67,14 @@ class SudokuGrid():
                     line+=str(value if value!=None else " ")+" "
                 print(line)
     def get(self,x,y):
+        '''
+        returns value at location
+        '''
         return self.boxDict[(x,y)]
     def getTable(self):
+        '''
+        returns table of values from boxDict
+        '''
         sTable = []
         for y in xrange(0,9):
             sLine = []
@@ -59,12 +85,22 @@ class SudokuGrid():
 
 class Sudoku():
     def __init__(self, boxGrid):
+        '''
+        creates and adopts sudokuGrid with given table
+        creates Sudoku object with grid
+        '''
         self.boxgrid = SudokuGrid(boxGrid, True)
     
     def getTable(self):
+        '''
+        returns table from grid
+        '''
         return self.boxgrid.getTable()
     
     def printTable(self):
+        '''
+        prints values from tables
+        '''
         sTable = self.getTable()
         for y in xrange(0,9):
             line = ""
@@ -77,6 +113,9 @@ class Sudoku():
             print(line)
     
     def getNumberFilled(self):
+        '''
+        counts total number of boxed with none "None" values
+        '''
         i = 0
         for y in xrange(0,9):
             for x in xrange(0,9):
@@ -215,6 +254,8 @@ class Sudoku():
                     madeChanges = madeChanges or self.LastManStanding(targetBox, x, y)
                     if madeChanges: return True
         # did it change anything?
+
+        # TODO ---> add checks for in line possible exclusion stuff
         return madeChanges   
       
     def isFilled(self):
