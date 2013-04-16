@@ -236,6 +236,9 @@ class Sudoku():
         return False
         
     def checkLoop(self):
+        '''
+        Checks cells to make changes, returns if changes are made
+        '''
         madeChanges = False
         # check each box, for that box check each row, column and 3x3 grid. Remove possibilities which interfere with those.
         for x in xrange(0,9):
@@ -259,6 +262,9 @@ class Sudoku():
         return madeChanges   
       
     def isFilled(self):
+        '''
+        checks if all cells are filled
+        '''
         for y in xrange(0,9):
             for x in xrange(0,9):
                 if self.boxgrid.get(x, y).getValue()==None:
@@ -266,6 +272,9 @@ class Sudoku():
         return True
 
 def isnumber(value):
+    '''
+    checks if string is number
+    '''
     try:
         int(value)
         return True
@@ -273,6 +282,9 @@ def isnumber(value):
         return False
     
 def readSudokuFile(filename):
+    '''
+    interprets sudoku file
+    '''
     sudokuTable = []
     sudokuFile = open(filename)
     for i in range(0,9):
@@ -286,6 +298,9 @@ def readSudokuFile(filename):
     return sudokuTable
     
 def fileexists(filename):
+    '''
+    does that file exist?
+    '''
     try:
         with open(filename):
             return True
