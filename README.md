@@ -5,7 +5,7 @@ This project aims to solve sudoku puzzles using python the same way humans do! I
 
 Status:
 
-Currently, the solver will complete easy problems which rely on the first two principles of Sudoku solving:
+Currently, the solver will complete problems which rely on the first two principles of Sudoku solving:
 
 One possibility: A box can only be one value since all other values are used in its row, column and region
 
